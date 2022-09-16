@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="postordersSubFlow" doc:id="0560e20f-7369-4d71-8160-88111543f8e4" >
+		<logger level="INFO" doc:name="Info: postorders subflow start Logger" doc:id="86d31531-5f98-4279-9cb8-11777de6a639" message="postorders subflow started"/>
+		<logger level="INFO" doc:name="Info: payload before sa1001-orders-sapi http request " doc:id="9faf1e1e-9b42-42b3-a3b2-5b5475622f29" message="payload before HTTP request is #[payload]"/>
+		<choice doc:name="Choice" doc:id="0b2abf35-bf88-4cfe-88c4-fd9c94ea590b" >
+			<when expression="#[(attributes.headers.appName == 'xpa1001-sfdc-eapi')]">
+				<foreach doc:name="For Each" doc:id="81f1c551-1cd1-4537-b452-80e991dcd0a5" >
+					<http:request method="POST" doc:name="Request To sa1001 postorders system API " doc:id="35ad27c2-94a2-4e83-abd7-5ba7a1abadc3" config-ref="HTTP_Request_Configuration" path="/orders">
+						<http:headers ><![CDATA[#[{
+	"client_id": 123,
+	"client_secret": 123
+}]]]></http:headers>
+					</http:request>
+				</foreach>
+			</when>
+			<otherwise >
+				<batch:job jobName="Batchprocessing" doc:id="4420d971-109c-4335-8b9a-17d934399ee5" >
+					<batch:process-records >
+						<batch:step name="Batch_Step" doc:id="61cbeda3-a151-417b-9b3b-acd084fabbf5" >
+							<ee:transform doc:name="Transform Message" doc:id="db2d7ecd-4f89-479e-9dbe-e032865fecc6" >
+								<ee:message >
+									<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+								</ee:message>
+							</ee:transform>
+							<batch:aggregator doc:name="Batch Aggregator" doc:id="05f963fe-7262-42c1-b5c4-1d75b8220ee4" size="5" preserveMimeTypes="true">
+								<ee:transform doc:name="Transform Message" doc:id="a5aec796-05eb-4a24-95e8-5f9102aedb4e" >
+									<ee:message >
+										<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+									</ee:message>
+								</ee:transform>
+								<http:request method="POST" doc:name="Request" doc:id="5b7e066c-dcb1-4772-a351-6ffca4c9a37e" config-ref="HTTP_Request_Configuration" path="/orders">
+									<http:headers ><![CDATA[#[{
+	"client_id": 123,
+	"client_secret": 123
+}]]]></http:headers>
+								</http:request>
+							</batch:aggregator>
+						</batch:step>
+					</batch:process-records>
+					<batch:on-complete >
+						<logger level="INFO" doc:name="Logger" doc:id="ef8a146b-211b-46b3-9afa-96c46fb11b9b" />
+					</batch:on-complete>
+				</batch:job>
+			</otherwise>
+		</choice>
+	</sub-flow>
+</mule>

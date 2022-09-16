@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<sub-flow name="getordersSubFlow" doc:id="79b0b723-edf3-4d18-b2a0-bd000b7817de" >
+		<logger level="INFO" doc:name="Info: getorders subflow start logger " doc:id="3e885c18-6a0c-4929-a63c-42c2fe7cf391" message="getorders subflow started"/>
+		<http:request method="GET" doc:name="Request To sa1001-orders-sapi System API" doc:id="5d48948e-d5ad-4c28-b726-330cbb0cf590" config-ref="HTTP_Request_Configuration" path="/orders">
+			<http:headers ><![CDATA[#[{
+	"client_id": 123,
+	"client_secret": 123
+}]]]></http:headers>
+		</http:request>
+		<logger level="INFO" doc:name="Info: getorders subflow end Logger" doc:id="d919a549-71bd-46c6-884d-7750dec8f9f6" message="getorders subflow ended"/>
+	</sub-flow>
+</mule>

@@ -1,0 +1,27 @@
+#%RAML 1.0
+title: pa1001-orders-papi
+description: pa1001-orders-papi manages the records in DB
+version: v1
+baseUri: /api/prc/v1
+mediaType: 
+- application/json
+protocols: [HTTP,HTTPS]
+types:
+  postOrdersRequestDataType: !include /dataTypes/requests/postOrdersDataType.raml
+  postOrdersResponseDataType: !include dataTypes/responses/postOrdersDataType.raml
+  getOrderResponseDataType: !include dataTypes/responses/getOrdersDataType.raml
+  errorResponses: !include dataTypes/errorResponses/errorResponse.raml
+
+traits:
+  clinetCredentils: !include traits/clientCredentials.raml
+  allErrorResponses: !include traits/errorResponses.raml
+  appName: !include traits/appName.raml
+resourceTypes:
+  ordersResourceType: !include resourceTypes/ordersResourceType.raml
+/orders:
+  is:
+    [clinetCredentils, allErrorResponses, appName]
+  type:
+    ordersResourceType
+
+  
